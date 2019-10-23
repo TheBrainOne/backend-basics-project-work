@@ -1,0 +1,29 @@
+{
+  "name": "project-work-12",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheBrainOne/project-work-12.git"
+  },
+  "author": "Alexey Dolzhenko",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TheBrainOne/project-work-12/issues"
+  },
+  "homepage": "https://github.com/TheBrainOne/project-work-12#readme",
+  "devDependencies": {
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "nodemon": "^1.19.4"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
