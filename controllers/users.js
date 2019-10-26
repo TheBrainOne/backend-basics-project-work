@@ -15,17 +15,18 @@ module.exports.showAllUsers = (req, res) => {
 
 module.exports.findUserById = (req, res) => {
   User.findById(req.params.id)
-    .then((user, error) => {
-      if (error) {
-        res.status(404);
-        return;
+    .then((user) => {
+      if (user === null) {
+        return res.status(404).send({ message: 'Такого пользователя нет' });
       }
-      res.send({ data: user });
+      return res.send({ data: user });
     })
     .catch((err) => {
       if (res.status(404)) {
-        res.send({ message: 'Пользователь не найден' });
+        return res.status(404).send({ message: `Запрашиваемая страница не найдена ${err}` });
       }
-      res.status(500).send({ message: err });
+      if (res.status(500)) {
+        return res.status(500).send({ message: `Произошла ошибка на сервере ${err}` });
+      }
     });
 };
