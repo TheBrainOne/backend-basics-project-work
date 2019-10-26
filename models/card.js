@@ -27,4 +27,10 @@ const cardSchema = new mongoose.Schema({
   },
 });
 
+cardSchema.path('link').validate((val) => {
+  // eslint-disable-next-line no-useless-escape
+  const urlRegex = /^(http:\/\/|https:\/\/+)(www\.)?((\d+\.\d+\.\d+\.\d+)(:\d{2,5})?|(\w+\.[a-z]+))(\/([\w\/]+)?#?)?$/;
+  return urlRegex.test(val);
+}, 'Здесь должна быть ссылка.');
+
 module.exports = mongoose.model('card', cardSchema);
