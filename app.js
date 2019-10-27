@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const mongoose = require('mongoose');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -7,6 +8,21 @@ const app = express();
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 
+mongoose.connect('mongodb://localhost:27017/mestodb', {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+});
+
+app.use((req, res, next) => {
+  req.user = {
+    _id: '5db4668b44b88937adf1c804',
+  };
+
+  next();
+});
+
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/users', users);
