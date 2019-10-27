@@ -21,12 +21,5 @@ module.exports.findUserById = (req, res) => {
       }
       return res.send({ data: user });
     })
-    .catch((err) => {
-      if (res.status(404)) {
-        return res.status(404).send({ message: `Запрашиваемая страница не найдена ${err}` });
-      }
-      if (res.status(500)) {
-        return res.status(500).send({ message: `Произошла ошибка на сервере ${err}` });
-      }
-    });
+    .catch((err) => res.status(500).send({ message: `Произошла ошибка на сервере ${err}` }));
 };
