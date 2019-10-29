@@ -20,7 +20,7 @@ module.exports.createUser = (req, res) => {
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'my-awesome-sekret-key', { expiresIn: '7d' });
       res.cookie('jwt', token, {
