@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -27,10 +28,6 @@ const cardSchema = new mongoose.Schema({
   },
 });
 
-cardSchema.path('link').validate((val) => {
-  // eslint-disable-next-line no-useless-escape
-  const urlRegex = /^(http:\/\/|https:\/\/+)(www\.)?((\d+\.\d+\.\d+\.\d+)(:\d{2,5})?|(\w+\.[a-z]+))(\/([\w\/]+)?#?)?$/;
-  return urlRegex.test(val);
-}, 'Здесь должна быть ссылка.');
+cardSchema.path('link').validate(validator.isURL, 'Здесь должна быть ссылка на картинку');
 
 module.exports = mongoose.model('card', cardSchema);
