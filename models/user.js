@@ -1,6 +1,18 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+    unique: true,
+    select: false,
+  },
   name: {
     type: String,
     required: true,
@@ -19,11 +31,8 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.path('avatar').validate((val) => {
-  // eslint-disable-next-line no-useless-escape
-  const urlRegex = /^(http:\/\/|https:\/\/+)(www\.)?((\d+\.\d+\.\d+\.\d+)(:\d{2,5})?|(\w+\.[a-z]+))(\/([\w\/]+)?#?)?$/;
-  return urlRegex.test(val);
-}, 'Здесь должна быть ссылка.');
+userSchema.path('email').validate(validator.isEmail, 'Вы ввели неверный e-mail `{VALUE}`');
+userSchema.path('avatar').validate(validator.isURL, 'Здесь должна быть ссылка на картинку');
 
 
 module.exports = mongoose.model('user', userSchema);
