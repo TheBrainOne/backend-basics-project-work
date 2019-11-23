@@ -17,7 +17,15 @@ module.exports.showAllCards = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.id)
-    .then((card) => res.send({ data: card }))
+  Card.findById(req.params.id)
+    // eslint-disable-next-line consistent-return
+    .then((card) => {
+      if (req.user._id === card.owner.toString()) {
+        return Card.findByIdAndRemove(card.id)
+          .then(() => res.send({ data: card }))
+          .catch((err) => res.status(404).send({ message: err }));
+      }
+      return res.status(403).send({ message: 'Вы не можете удалить эту карточку' });
+    })
     .catch((err) => res.status(500).send({ message: err }));
 };
