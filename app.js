@@ -11,6 +11,8 @@ const users = require('./routes/users');
 const cards = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const notFound = require('./middlewares/not-found');
+const error = require('./middlewares/error');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
@@ -28,9 +30,9 @@ app.use(auth);
 
 app.use('/users', users);
 app.use('/cards', cards);
-app.use((req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
-});
+
+app.use(notFound);
+app.use(error);
 
 app.listen(PORT, () => {
 });
