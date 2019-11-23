@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
   }
   let payload;
   try {
-    payload = jwt.verify(req.cookies.jwt, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
+    payload = jwt.verify(req.cookies.jwt, NODE_ENV === 'production' ? JWT_SECRET : 'dba298a5a963d68f9c05cb363f15edd7');
   } catch (err) {
     throw new UnauthorizedError('Необходима авторизация!');
   }
