@@ -20,7 +20,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(express.json());
 app.use(cookieParser());
 
-app.post('/login', login);
+app.post('/signin', login);
 app.post('/signup', createUser);
 
 app.use(auth);
