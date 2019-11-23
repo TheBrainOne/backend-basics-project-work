@@ -4,8 +4,10 @@ const User = require('../models/user');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 const NotFoundError = require('../errors/not-found-err');
+const BadRequestError = require('../errors/bad-request-err');
+const UnauthorizedError = require('../errors/unauthorized-err');
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
@@ -18,10 +20,11 @@ module.exports.createUser = (req, res) => {
       avatar,
     }))
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(400).send({ message: err.message }));
+    .catch((err) => { throw new BadRequestError(err.message); })
+    .catch(next);
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -32,7 +35,8 @@ module.exports.login = (req, res) => {
         sameSite: true,
       }).end();
     })
-    .catch((err) => res.status(401).send({ message: err.message }));
+    .catch((err) => { throw new UnauthorizedError(err.message); })
+    .catch(next);
 };
 
 module.exports.showAllUsers = (req, res, next) => {

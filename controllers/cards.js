@@ -10,7 +10,8 @@ module.exports.createCard = (req, res, next) => {
     name, link, owner: req.user._id, likes: [],
   })
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => { throw new BadRequestError(err.message); })
+    .catch(next);
 };
 
 module.exports.showAllCards = (req, res, next) => {
