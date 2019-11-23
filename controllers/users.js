@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
+const NotFoundError = require('../errors/not-found-err');
 
 module.exports.createUser = (req, res) => {
   const {
@@ -34,19 +35,24 @@ module.exports.login = (req, res) => {
     .catch((err) => res.status(401).send({ message: err.message }));
 };
 
-module.exports.showAllUsers = (req, res) => {
+module.exports.showAllUsers = (req, res, next) => {
   User.find({})
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: err }));
-};
-
-module.exports.findUserById = (req, res) => {
-  User.findById(req.params.id)
     .then((user) => {
-      if (user === null) {
-        return res.status(404).send({ message: 'Такого пользователя нет' });
+      if (user.length <= 0) {
+        throw new NotFoundError('Не найдено ниодного пользователя');
       }
       return res.send({ data: user });
     })
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка на сервере ${err}` }));
+    .catch(next);
+};
+
+module.exports.findUserById = (req, res, next) => {
+  User.findById(req.params.id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Нет пользователя с таким id');
+      }
+      return res.send({ data: user });
+    })
+    .catch(next);
 };

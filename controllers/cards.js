@@ -1,6 +1,9 @@
 const Card = require('../models/card');
+const NotFoundError = require('../errors/not-found-err');
+const BadRequestError = require('../errors/bad-request-err');
+const ForbiddenError = require('../errors/forbidden');
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
 
   Card.create({
@@ -10,22 +13,28 @@ module.exports.createCard = (req, res) => {
     .catch((err) => res.status(500).send({ message: err }));
 };
 
-module.exports.showAllCards = (req, res) => {
+module.exports.showAllCards = (req, res, next) => {
   Card.find({})
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: err }));
+    .then((card) => {
+      if (card.length <= 0) {
+        throw new NotFoundError('Не найдено ни одной карточки.');
+      }
+      res.send({ data: card });
+    })
+    .catch(next);
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.id)
-    // eslint-disable-next-line consistent-return
     .then((card) => {
-      if (req.user._id === card.owner.toString()) {
-        return Card.findByIdAndRemove(card.id)
-          .then(() => res.send({ data: card }))
-          .catch((err) => res.status(404).send({ message: err }));
+      if (!card) {
+        throw new NotFoundError('Нет карточки с таким id');
+      } else if (req.user._id !== card.owner.toString()) {
+        throw new ForbiddenError('Вы не можете удалить не свою карточку');
       }
-      return res.status(403).send({ message: 'Вы не можете удалить эту карточку' });
+      Card.findByIdAndRemove(card.id)
+        .then(() => res.send({ data: card }))
+        .catch(next);
     })
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch(next);
 };
