@@ -2,7 +2,12 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-module.exports.createUser = (req, res) => {
+const { NODE_ENV, JWT_SECRET } = process.env;
+const NotFoundError = require('../errors/not-found-err');
+const BadRequestError = require('../errors/bad-request-err');
+const UnauthorizedError = require('../errors/unauthorized-err');
+
+module.exports.createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
@@ -15,36 +20,43 @@ module.exports.createUser = (req, res) => {
       avatar,
     }))
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(400).send({ message: err.message }));
+    .catch((err) => { throw new BadRequestError(err.message); })
+    .catch(next);
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'my-awesome-sekret-key', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dba298a5a963d68f9c05cb363f15edd7', { expiresIn: '7d' });
       res.cookie('jwt', token, {
         maxAge: 3600000,
         httpOnly: true,
         sameSite: true,
       }).end();
     })
-    .catch((err) => res.status(401).send({ message: err.message }));
+    .catch((err) => { throw new UnauthorizedError(err.message); })
+    .catch(next);
 };
 
-module.exports.showAllUsers = (req, res) => {
+module.exports.showAllUsers = (req, res, next) => {
   User.find({})
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: err }));
-};
-
-module.exports.findUserById = (req, res) => {
-  User.findById(req.params.id)
     .then((user) => {
-      if (user === null) {
-        return res.status(404).send({ message: 'Такого пользователя нет' });
+      if (user.length <= 0) {
+        throw new NotFoundError('Не найдено ниодного пользователя');
       }
       return res.send({ data: user });
     })
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка на сервере ${err}` }));
+    .catch(next);
+};
+
+module.exports.findUserById = (req, res, next) => {
+  User.findById(req.params.id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Нет пользователя с таким id');
+      }
+      return res.send({ data: user });
+    })
+    .catch(next);
 };
